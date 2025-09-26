@@ -5,137 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weekly Meal Planner</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            padding: 20px;
-            min-height: 100vh;
-            background-color: #f4f4f9;
-        }
-
-        .meal-planner {
-            width: 100%;
-            height: 70vh; /* Further reduce table height to 70% of the viewport */
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .meal-planner th, .meal-planner td {
-            border: 1px solid #ddd;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .meal-planner th {
-            background-color: #89c2ff; /* Change to lighter blue */
-            color: white;
-            text-transform: uppercase;
-        }
-
-        .meal-planner td {
-            height: calc(70vh / 8); /* Divide table height by 8 rows (1 header + 7 days) */
-            vertical-align: top;
-            position: relative;
-        }
-
-        .meal-planner td .tile {
-            width: 100%;
-            height: 100%; /* Adjust textarea height to fill the cell */
-            border: none;
-            outline: none;
-            font-size: 14px;
-            padding: 5px;
-            resize: none;
-            box-sizing: border-box;
-        }
-
-        .meal-planner tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .meal-planner td:first-child {
-            text-align: center; /* Center horizontally */
-            vertical-align: middle; /* Center vertically */
-            font-weight: bold; /* Optional: Make the text bold for better visibility */
-        }
-
-        /* Add new styles */
-        .btn-icon {
-            padding: 12px;
-            font-size: 18px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.2s;
-        }
-
-        .btn-icon:hover {
-            opacity: 0.9;
-        }
-
-        .print-btn {
-            background-color: #757575;
-        }
-
-        .reset-btn {
-            background-color: #f44336;
-        }
-
-        .download-btn {
-            background-color: #89c2ff;
-        }
-
-        .tile {
-            max-length: 200;
-        }
-
-        @media print {
-            .no-print {
-                display: none;
-            }
-        }
-
-        .btn-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 10px;
-            width: 100%;
-        }
-
-        .wrapper {
-            width: 80%;
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn-container {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .table-container {
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">        
 </head>
 <body style="display: flex; flex-direction: column; align-items: center;">
     <div class="wrapper">
@@ -214,10 +84,12 @@
                 const lines = this.value.split('\n');
                 this.value = lines
                     .map(line => {
-                        line = line.trim(); // Remove leading/trailing spaces
                         if (line) {
                             if (!line.startsWith('•')) {
                                 line = `• ${line}`;
+                            }
+                            if (line == '• ') {
+                                return '';
                             }
                             // Capitalize the first letter after the bullet
                             line = line.slice(0, 2) + line.charAt(2).toUpperCase() + line.slice(3);
