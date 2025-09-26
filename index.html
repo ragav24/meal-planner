@@ -1,139 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Meal Planner</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">        
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Meal Planner</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .meal-box {
+      min-height: 100px;
+      overflow-y: auto;
+    }
+    .meal-box:empty:before {
+      content: attr(data-placeholder);
+      color: #aaa;
+    }
+    .meal-box ul {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+    .meal-box li {
+      list-style-type: disc;
+    }
+  </style>
 </head>
-<body style="display: flex; flex-direction: column; align-items: center;">
-    <div class="wrapper">
-        <div class="btn-container no-print">
-            <button id="print-btn" class="btn-icon print-btn" title="Print">
-                <i class="fas fa-print"></i>
-            </button>
-            <button id="reset-btn" class="btn-icon reset-btn" title="Reset">
-                <i class="fas fa-trash"></i>
-            </button>
-            <button id="download-btn" class="btn-icon download-btn" title="Download">
-                <i class="fas fa-download"></i>
-            </button>
-        </div>
-        <div class="table-container">
-            <table class="meal-planner">
-                <thead>
-                    <tr>
-                        <th>Day</th>
-                        <th>Breakfast</th>
-                        <th>Lunch</th>
-                        <th>Dinner</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Monday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Tuesday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Wednesday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Thursday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Friday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Saturday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Sunday</td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                        <td><textarea class="tile" placeholder="Enter food item(s)"></textarea></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+<body class="bg-light">
+
+  <div class="container my-4">
+    <!-- Button Section -->
+    <div class="d-flex justify-content-end mb-3 gap-2 no-print">
+      <button id="print-btn" class="btn btn-secondary" title="Print">
+        <i class="fas fa-print"></i>
+      </button>
+      <button id="reset-btn" class="btn btn-danger" title="Reset">
+        <i class="fas fa-trash"></i>
+      </button>
+      <button id="download-btn" class="btn btn-primary" title="Download">
+        <i class="fas fa-download"></i>
+      </button>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script>
-        document.querySelectorAll('.tile').forEach(textarea => {
-            textarea.addEventListener('input', function () {
-                const lines = this.value.split('\n');
-                this.value = lines
-                    .map(line => {
-                        if (line) {
-                            if (!line.startsWith('•')) {
-                                line = `• ${line}`;
-                            }
-                            if (line == '• ') {
-                                return '';
-                            }
-                            // Capitalize the first letter after the bullet
-                            line = line.slice(0, 2) + line.charAt(2).toUpperCase() + line.slice(3);
-                        }
-                        return line;
-                    })
-                    .join('\n');
-            });
 
-            textarea.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent default newline behavior
-                    const cursorPosition = this.selectionStart;
-                    const beforeCursor = this.value.substring(0, cursorPosition);
-                    const afterCursor = this.value.substring(cursorPosition);
-                    this.value = `${beforeCursor}\n• ${afterCursor}`;
-                    this.selectionStart = this.selectionEnd = cursorPosition + 3; // Move cursor after the new bullet
-                }
-            });
-        });
+    <!-- Header Row -->
+    <div class="row text-center text-white fw-bold" style="background-color: #89c2ff;">
+      <div class="col border">Monday</div>
+      <div class="col border">Tuesday</div>
+      <div class="col border">Wednesday</div>
+      <div class="col border">Thursday</div>
+      <div class="col border">Friday</div>
+      <div class="col border">Saturday</div>
+      <div class="col border">Sunday</div>
+    </div>
 
-        document.getElementById('download-btn').addEventListener('click', function () {
-            const mealPlanner = document.querySelector('.meal-planner');
-            html2canvas(mealPlanner).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'meal-planner.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-        });
+    <!-- Breakfast Row -->
+    <div class="row text-center align-items-center">
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Breakfast"><ul><li></li></ul></div></div>
+    </div>
 
-        // Add print functionality
-        document.getElementById('print-btn').addEventListener('click', function() {
-            window.print();
-        });
+    <!-- Lunch Row -->
+    <div class="row text-center align-items-center">
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Lunch"><ul><li></li></ul></div></div>
+    </div>
 
-        // Add reset functionality
-        document.getElementById('reset-btn').addEventListener('click', function() {
-            if (confirm('Are you sure you want to clear all meal entries?')) {
-                document.querySelectorAll('.tile').forEach(textarea => {
-                    textarea.value = '';
-                });
-            }
+    <!-- Dinner Row -->
+    <div class="row text-center align-items-center">
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+      <div class="col border p-2"><div class="form-control meal-box" contenteditable="true" data-placeholder="Dinner"><ul><li></li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <script>
+    // Bullet list behavior
+    document.querySelectorAll('.meal-box').forEach(box => {
+      box.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.execCommand('insertHTML', false, '<li></li>');
+        }
+      });
+    });
+
+    // Print
+    document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+    // Reset
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all meal entries?')) {
+        document.querySelectorAll('.meal-box ul').forEach(ul => {
+          ul.innerHTML = '<li></li>';
         });
-    </script>
+      }
+    });
+
+    // Download as image
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const container = document.querySelector('.container');
+      html2canvas(container).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'meal-planner.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+  </script>
 </body>
 </html>
