@@ -18,5 +18,6 @@ A simple web application that helps users plan their weekly meals and download o
 - **HTML** – Structure of the app
 - **CSS** – Styling and layout
 - **JavaScript** – Dynamic content and functionality (plan generation, image export, print)
+- **Bootrap** - Responsive table design
 
 ---
