@@ -1,0 +1,178 @@
+:root {
+  --color-bg: #f5f1e8;
+  --color-surface: #ffffff;
+  --color-text: #2b2620;
+  --color-text-muted: #6b6355;
+  --color-accent: #7a6a53;
+  --color-border: #ded5c2;
+  --color-danger: #b3453a;
+
+  /* Retint Bootstrap's border utility to match the theme */
+  --bs-border-color: var(--color-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1c1a17;
+    --color-surface: #262320;
+    --color-text: #ece6d9;
+    --color-text-muted: #a89d89;
+    --color-accent: #c9b28a;
+    --color-border: #3a352d;
+    --color-danger: #d9695c;
+  }
+}
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-header {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.app-title {
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.app-content {
+  padding-top: 2rem;
+}
+
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.app-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.app-btn-primary {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.app-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--color-accent);
+}
+
+.app-btn-danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.app-btn-danger:hover {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+
+.meal-planner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.day-header {
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font-weight: bold;
+  letter-spacing: 0.02em;
+}
+
+.day-header .col {
+  padding: 0.75rem 0.5rem;
+}
+
+.meal-planner .col {
+  min-width: 0;
+}
+
+.meal-box {
+  min-height: 100px;
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  font-family: inherit;
+  color: var(--color-text);
+}
+
+.meal-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.meal-item-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  font: inherit;
+  color: inherit;
+  outline: none;
+  border-radius: 4px;
+}
+
+.meal-item-input:focus {
+  background: var(--color-bg);
+}
+
+.meal-item-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.meal-item-remove {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.meal-item-remove:hover {
+  color: var(--color-danger);
+}
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}
