@@ -5,27 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8090:80"
-    depends_on:
-      - items-service
     restart: unless-stopped
+    networks:
+      - meal-planner-net
 
-  items-service:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    environment:
-      MONGODB_URI: mongodb://mongo:27017/mealplanner
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mongo
-    restart: unless-stopped
-
-  mongo:
-    image: mongo:7
-    volumes:
-      - mongo-data:/data/db
-    restart: unless-stopped
-
-volumes:
-  mongo-data:
+networks:
+  # Shared with the meal-planner-service repo's compose project so nginx can
+  # reverse-proxy /api/ to its `items-service` container by name. Create once
+  # with `docker network create meal-planner-net`, then run `docker compose up`
+  # in both repos. See that repo's CLAUDE.md for details.
+  meal-planner-net:
+    external: true
