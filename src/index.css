@@ -207,17 +207,6 @@ body {
   background: var(--color-bg);
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.45);
-}
-
 .manage-items-modal {
   width: 100%;
   max-width: 28rem;
@@ -239,20 +228,6 @@ body {
   font-weight: bold;
   letter-spacing: 0.02em;
   color: var(--color-text);
-}
-
-.manage-items-close {
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 1;
-  padding: 0 4px;
-}
-
-.manage-items-close:hover {
-  color: var(--color-danger);
 }
 
 .manage-items-body {

@@ -1,7 +1,6 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import html2canvas from 'html2canvas'
 import MealBox from './MealBox'
-import ManageItemsModal from './ManageItemsModal'
 import useLocalStorage from '../hooks/useLocalStorage'
 import useMasterItems from '../hooks/useMasterItems'
 import { DAYS, MEALS } from '../constants'
@@ -64,8 +63,7 @@ function buildPlanText(mealPlan, weekLabel) {
 
 function MealPlanner() {
   const [mealPlan, setMealPlan] = useLocalStorage('weeklyMealPlan', createEmptyPlan())
-  const { masterItems, addItem, updateItemAt, removeItemAt } = useMasterItems()
-  const [isManageOpen, setIsManageOpen] = useState(false)
+  const { masterItemNames, addItem } = useMasterItems()
   const plannerRef = useRef(null)
   const weekInfo = getWeekInfo()
 
@@ -158,9 +156,6 @@ function MealPlanner() {
           <button className="app-btn app-btn-primary" title="Share to WhatsApp" onClick={handleShareWhatsApp}>
             <i className="fab fa-whatsapp"></i>
           </button>
-          <button className="app-btn" title="Manage Items" onClick={() => setIsManageOpen(true)}>
-            <i className="fas fa-list"></i>
-          </button>
         </div>
       </div>
 
@@ -181,7 +176,7 @@ function MealPlanner() {
                   items={mealPlan[day][meal]}
                   placeholder={meal}
                   onChange={(items) => updateMeal(day, meal, items)}
-                  masterItems={masterItems}
+                  masterItems={masterItemNames}
                   onCommitItem={addItem}
                 />
               </div>
@@ -189,16 +184,6 @@ function MealPlanner() {
           </div>
         ))}
       </div>
-
-      {isManageOpen && (
-        <ManageItemsModal
-          items={masterItems}
-          onAdd={addItem}
-          onUpdate={updateItemAt}
-          onRemove={removeItemAt}
-          onClose={() => setIsManageOpen(false)}
-        />
-      )}
     </div>
   )
 }

@@ -1,5 +1,8 @@
-import useLocalStorage from './useLocalStorage'
+import { useEffect, useMemo, useState } from 'react'
+import { createItem, deleteItem, fetchItems, renameItem } from '../api/masterItemsApi'
 import { DAYS, MEALS } from '../constants'
+
+const SEEDED_FLAG = 'masterItemsSeeded'
 
 function seedFromExistingPlan() {
   try {
@@ -26,26 +29,72 @@ function seedFromExistingPlan() {
   }
 }
 
+async function seedIfNeeded() {
+  try {
+    if (window.localStorage.getItem(SEEDED_FLAG) === '1') return
+    const names = seedFromExistingPlan()
+    await Promise.all(names.map((name) => createItem(name).catch(() => {})))
+  } catch {
+    // best-effort migration - fail silently, source data stays in weeklyMealPlan
+  } finally {
+    try {
+      window.localStorage.setItem(SEEDED_FLAG, '1')
+    } catch {
+      // localStorage unavailable - fail silently
+    }
+  }
+}
+
 function useMasterItems() {
-  const [masterItems, setMasterItems] = useLocalStorage('masterItemList', seedFromExistingPlan)
+  const [items, setItems] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const addItem = (text) => {
-    const trimmed = text.trim()
+  useEffect(() => {
+    let cancelled = false
+    seedIfNeeded()
+      .then(() => fetchItems())
+      .then((fetched) => {
+        if (!cancelled) setItems(fetched ?? [])
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const masterItemNames = useMemo(() => items.map((item) => item.name), [items])
+
+  const addItem = (name) => {
+    const trimmed = name.trim()
     if (!trimmed) return
-    setMasterItems((prev) =>
-      prev.some((item) => item.toLowerCase() === trimmed.toLowerCase()) ? prev : [...prev, trimmed],
-    )
+    createItem(trimmed)
+      .then((created) => {
+        setItems((prev) => (prev.some((item) => item.id === created.id) ? prev : [...prev, created]))
+      })
+      .catch(() => {})
   }
 
-  const updateItemAt = (index, text) => {
-    setMasterItems((prev) => prev.map((item, i) => (i === index ? text : item)))
+  const updateItem = async (id, name) => {
+    const trimmed = name.trim()
+    if (!trimmed) return { ok: false }
+    try {
+      const updated = await renameItem(id, trimmed)
+      setItems((prev) => prev.map((item) => (item.id === id ? updated : item)))
+      return { ok: true, item: updated }
+    } catch {
+      return { ok: false }
+    }
   }
 
-  const removeItemAt = (index) => {
-    setMasterItems((prev) => prev.filter((_, i) => i !== index))
+  const removeItem = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id))
+    deleteItem(id).catch(() => {})
   }
 
-  return { masterItems, addItem, updateItemAt, removeItemAt }
+  return { items, masterItemNames, isLoading, addItem, updateItem, removeItem }
 }
 
 export default useMasterItems
