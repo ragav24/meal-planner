@@ -44,6 +44,12 @@ class MasterItemService(private val repository: MasterItemRepository) {
 		return MasterItemResponse.from(updated)
 	}
 
+	fun updateMealTypes(id: String, mealTypes: Set<String>): MasterItemResponse {
+		val existing = repository.findById(id).orElseThrow { ItemNotFoundException(id) }
+		val updated = repository.save(existing.copy(mealTypes = mealTypes))
+		return MasterItemResponse.from(updated)
+	}
+
 	fun delete(id: String) {
 		repository.deleteById(id)
 	}

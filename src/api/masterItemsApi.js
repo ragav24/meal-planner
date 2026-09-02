@@ -30,6 +30,10 @@ export function renameItem(id, name) {
   return request(`/${id}`, { method: 'PUT', body: JSON.stringify({ name }) })
 }
 
+export function updateItemTags(id, mealTypes) {
+  return request(`/${id}/tags`, { method: 'PUT', body: JSON.stringify({ mealTypes }) })
+}
+
 export function deleteItem(id) {
   return request(`/${id}`, { method: 'DELETE' })
 }

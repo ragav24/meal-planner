@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createItem, deleteItem, fetchItems, renameItem } from '../api/masterItemsApi'
+import { createItem, deleteItem, fetchItems, renameItem, updateItemTags } from '../api/masterItemsApi'
 import { DAYS, MEALS } from '../constants'
 
 const SEEDED_FLAG = 'masterItemsSeeded'
@@ -67,12 +67,23 @@ function useMasterItems() {
 
   const masterItemNames = useMemo(() => items.map((item) => item.name), [items])
 
-  const addItem = (name) => {
+  // `mealType`, when given, is the category the item was just added under (e.g. typed or
+  // dropped into a Breakfast cell) - it gets tagged onto the item so future Surprise Me
+  // runs and the Manage Items page pick it up, unless the item is already tagged with it.
+  const addItem = (name, mealType) => {
     const trimmed = name.trim()
     if (!trimmed) return
     createItem(trimmed)
       .then((created) => {
         setItems((prev) => (prev.some((item) => item.id === created.id) ? prev : [...prev, created]))
+
+        if (mealType && !created.mealTypes?.includes(mealType)) {
+          updateItemTags(created.id, [...(created.mealTypes ?? []), mealType])
+            .then((updated) => {
+              setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+            })
+            .catch(() => {})
+        }
       })
       .catch(() => {})
   }
@@ -94,7 +105,17 @@ function useMasterItems() {
     deleteItem(id).catch(() => {})
   }
 
-  return { items, masterItemNames, isLoading, addItem, updateItem, removeItem }
+  const updateTags = async (id, mealTypes) => {
+    try {
+      const updated = await updateItemTags(id, mealTypes)
+      setItems((prev) => prev.map((item) => (item.id === id ? updated : item)))
+      return { ok: true, item: updated }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  return { items, masterItemNames, isLoading, addItem, updateItem, removeItem, updateTags }
 }
 
 export default useMasterItems

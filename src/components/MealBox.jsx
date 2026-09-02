@@ -13,6 +13,7 @@ function MealBox({ items, placeholder, onChange, masterItems, onCommitItem }) {
   const [draft, setDraft] = useState('')
   const [openFieldKey, setOpenFieldKey] = useState(null) // 'draft' | number | null
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const [isDragOver, setIsDragOver] = useState(false)
   const draftInputRef = useRef(null)
   const itemInputRefs = useRef(new Map())
 
@@ -148,8 +149,30 @@ function MealBox({ items, placeholder, onChange, masterItems, onCommitItem }) {
     closeDropdown()
   }
 
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = () => setIsDragOver(false)
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    const text = e.dataTransfer.getData('text/plain').trim()
+    if (!text) return
+    onChange([...items, text])
+    onCommitItem(text)
+  }
+
   return (
-    <div className="meal-box">
+    <div
+      className={`meal-box${isDragOver ? ' meal-box-drag-over' : ''}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {items.map((item, index) => (
         <div className="meal-item" key={index}>
           <input

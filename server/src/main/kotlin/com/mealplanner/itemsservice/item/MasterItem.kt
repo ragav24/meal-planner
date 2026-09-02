@@ -12,5 +12,6 @@ data class MasterItem(
 	val name: String,
 	@Indexed(unique = true)
 	val normalizedName: String,
+	val mealTypes: Set<String> = emptySet(),
 	val createdAt: Instant = Instant.now(),
 )

@@ -13,11 +13,16 @@ data class UpdateItemRequest(
 	val name: String,
 )
 
+data class UpdateMealTypesRequest(
+	val mealTypes: List<String> = emptyList(),
+)
+
 data class MasterItemResponse(
 	val id: String,
 	val name: String,
+	val mealTypes: List<String> = emptyList(),
 ) {
 	companion object {
-		fun from(item: MasterItem) = MasterItemResponse(id = item.id!!, name = item.name)
+		fun from(item: MasterItem) = MasterItemResponse(id = item.id!!, name = item.name, mealTypes = item.mealTypes.toList())
 	}
 }

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import html2canvas from 'html2canvas'
 import MealBox from './MealBox'
+import ItemsSidebar from './ItemsSidebar'
 import useLocalStorage from '../hooks/useLocalStorage'
 import useMasterItems from '../hooks/useMasterItems'
 import { DAYS, MEALS } from '../constants'
@@ -43,6 +44,30 @@ function getWeekInfo(date = new Date()) {
   }
 }
 
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+// Builds a `count`-long sequence drawn from `pool`, cycling through a fresh shuffle
+// each time it's exhausted so repeats are spread out rather than clustered.
+function buildFillerQueue(pool, count) {
+  const queue = []
+  while (queue.length < count) {
+    const batch = shuffle(pool)
+    const last = queue[queue.length - 1]
+    if (last !== undefined && batch[0] === last && batch.length > 1) {
+      ;[batch[0], batch[1]] = [batch[1], batch[0]]
+    }
+    queue.push(...batch)
+  }
+  return queue.slice(0, count)
+}
+
 function isMobileDevice() {
   if (typeof navigator.userAgentData?.mobile === 'boolean') return navigator.userAgentData.mobile
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
@@ -63,7 +88,7 @@ function buildPlanText(mealPlan, weekLabel) {
 
 function MealPlanner() {
   const [mealPlan, setMealPlan] = useLocalStorage('weeklyMealPlan', createEmptyPlan())
-  const { masterItemNames, addItem } = useMasterItems()
+  const { items, masterItemNames, addItem } = useMasterItems()
   const plannerRef = useRef(null)
   const weekInfo = getWeekInfo()
 
@@ -80,6 +105,34 @@ function MealPlanner() {
     if (window.confirm('Are you sure you want to clear all meal entries?')) {
       setMealPlan(createEmptyPlan())
     }
+  }
+
+  const handleSurpriseMe = () => {
+    const anyTagged = items.some((item) => item.mealTypes?.length > 0)
+    if (!anyTagged) {
+      window.alert('Tag some items with Breakfast, Lunch or Dinner on the Manage Items page first, then try Surprise Me again.')
+      return
+    }
+
+    setMealPlan((prev) => {
+      const next = DAYS.reduce((acc, day) => {
+        acc[day] = { ...prev[day] }
+        return acc
+      }, {})
+
+      MEALS.forEach((meal) => {
+        const pool = items.filter((item) => item.mealTypes?.includes(meal)).map((item) => item.name)
+        if (pool.length === 0) return
+
+        const emptyDays = DAYS.filter((day) => prev[day][meal].length === 0)
+        const queue = buildFillerQueue(pool, emptyDays.length)
+        emptyDays.forEach((day, i) => {
+          next[day][meal] = [queue[i]]
+        })
+      })
+
+      return next
+    })
   }
 
   const renderPlannerCanvas = () => {
@@ -136,53 +189,62 @@ function MealPlanner() {
   }
 
   return (
-    <div className="container app-content my-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div className="week-label">
-          <i className="fas fa-calendar-week me-2"></i>
-          {weekInfo.label}
-        </div>
+    <div className="container-fluid app-content my-4">
+      <div className="planner-layout d-flex gap-3">
+        <ItemsSidebar items={masterItemNames} />
 
-        <div className="d-flex gap-2 no-print">
-          <button className="app-btn" title="Print" onClick={handlePrint}>
-            <i className="fas fa-print"></i>
-          </button>
-          <button className="app-btn app-btn-danger" title="Reset" onClick={handleReset}>
-            <i className="fas fa-trash"></i>
-          </button>
-          <button className="app-btn app-btn-primary" title="Download" onClick={handleDownload}>
-            <i className="fas fa-download"></i>
-          </button>
-          <button className="app-btn app-btn-primary" title="Share to WhatsApp" onClick={handleShareWhatsApp}>
-            <i className="fab fa-whatsapp"></i>
-          </button>
-        </div>
-      </div>
-
-      <div className="meal-planner" ref={plannerRef}>
-        <div className="row text-center day-header">
-          {DAYS.map((day) => (
-            <div className="col border" key={day}>
-              {day}
+        <div className="planner-main">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="week-label">
+              <i className="fas fa-calendar-week me-2"></i>
+              {weekInfo.label}
             </div>
-          ))}
-        </div>
 
-        {MEALS.map((meal) => (
-          <div className="row text-center align-items-center" key={meal}>
-            {DAYS.map((day) => (
-              <div className="col border p-2" key={day}>
-                <MealBox
-                  items={mealPlan[day][meal]}
-                  placeholder={meal}
-                  onChange={(items) => updateMeal(day, meal, items)}
-                  masterItems={masterItemNames}
-                  onCommitItem={addItem}
-                />
+            <div className="d-flex gap-2 no-print">
+              <button className="app-btn" title="Print" onClick={handlePrint}>
+                <i className="fas fa-print"></i>
+              </button>
+              <button className="app-btn app-btn-danger" title="Reset" onClick={handleReset}>
+                <i className="fas fa-trash"></i>
+              </button>
+              <button className="app-btn app-btn-primary" title="Surprise Me — fill empty slots" onClick={handleSurpriseMe}>
+                <i className="fas fa-dice"></i>
+              </button>
+              <button className="app-btn app-btn-primary" title="Download" onClick={handleDownload}>
+                <i className="fas fa-download"></i>
+              </button>
+              <button className="app-btn app-btn-primary" title="Share to WhatsApp" onClick={handleShareWhatsApp}>
+                <i className="fab fa-whatsapp"></i>
+              </button>
+            </div>
+          </div>
+
+          <div className="meal-planner" ref={plannerRef}>
+            <div className="row text-center day-header">
+              {DAYS.map((day) => (
+                <div className="col border" key={day}>
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {MEALS.map((meal) => (
+              <div className="row text-center align-items-center" key={meal}>
+                {DAYS.map((day) => (
+                  <div className="col border p-2" key={day}>
+                    <MealBox
+                      items={mealPlan[day][meal]}
+                      placeholder={meal}
+                      onChange={(items) => updateMeal(day, meal, items)}
+                      masterItems={masterItemNames}
+                      onCommitItem={(text) => addItem(text, meal)}
+                    />
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )

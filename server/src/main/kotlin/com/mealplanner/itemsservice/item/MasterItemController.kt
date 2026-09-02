@@ -3,6 +3,7 @@ package com.mealplanner.itemsservice.item
 import com.mealplanner.itemsservice.item.dto.CreateItemRequest
 import com.mealplanner.itemsservice.item.dto.MasterItemResponse
 import com.mealplanner.itemsservice.item.dto.UpdateItemRequest
+import com.mealplanner.itemsservice.item.dto.UpdateMealTypesRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -31,6 +32,10 @@ class MasterItemController(private val service: MasterItemService) {
 	@PutMapping("/{id}")
 	fun rename(@PathVariable id: String, @Valid @RequestBody request: UpdateItemRequest): MasterItemResponse =
 		service.rename(id, request.name)
+
+	@PutMapping("/{id}/tags")
+	fun updateTags(@PathVariable id: String, @RequestBody request: UpdateMealTypesRequest): MasterItemResponse =
+		service.updateMealTypes(id, request.mealTypes.toSet())
 
 	@DeleteMapping("/{id}")
 	fun delete(@PathVariable id: String): ResponseEntity<Void> {

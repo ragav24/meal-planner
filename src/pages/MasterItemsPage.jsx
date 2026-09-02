@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import useMasterItems from '../hooks/useMasterItems'
+import { MEALS } from '../constants'
 
-function MasterItemRow({ id, name, onRename, onRemove }) {
+function MasterItemRow({ id, name, mealTypes, onRename, onRemove, onToggleTag }) {
   const [draftValue, setDraftValue] = useState(name)
 
   const commit = async () => {
@@ -15,29 +16,48 @@ function MasterItemRow({ id, name, onRename, onRemove }) {
     if (!result.ok) setDraftValue(name)
   }
 
+  const toggleTag = (meal) => {
+    const next = mealTypes.includes(meal) ? mealTypes.filter((m) => m !== meal) : [...mealTypes, meal]
+    onToggleTag(id, next)
+  }
+
   return (
-    <div className="meal-item">
-      <input
-        className="meal-item-input"
-        value={draftValue}
-        onChange={(e) => setDraftValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault()
-            commit()
-          }
-        }}
-        onBlur={commit}
-      />
-      <button type="button" className="meal-item-remove" aria-label="Remove item" onClick={() => onRemove(id)}>
-        &times;
-      </button>
+    <div className="manage-item-row">
+      <div className="meal-item">
+        <input
+          className="meal-item-input"
+          value={draftValue}
+          onChange={(e) => setDraftValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              commit()
+            }
+          }}
+          onBlur={commit}
+        />
+        <button type="button" className="meal-item-remove" aria-label="Remove item" onClick={() => onRemove(id)}>
+          &times;
+        </button>
+      </div>
+      <div className="item-tag-row">
+        {MEALS.map((meal) => (
+          <button
+            type="button"
+            key={meal}
+            className={`item-tag${mealTypes.includes(meal) ? ' active' : ''}`}
+            onClick={() => toggleTag(meal)}
+          >
+            {meal}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
 
 function MasterItemsPage() {
-  const { items, isLoading, addItem, updateItem, removeItem } = useMasterItems()
+  const { items, isLoading, addItem, updateItem, removeItem, updateTags } = useMasterItems()
   const [draft, setDraft] = useState('')
 
   const addDraftItem = () => {
@@ -60,7 +80,15 @@ function MasterItemsPage() {
           )}
           {!isLoading &&
             items.map((item) => (
-              <MasterItemRow key={item.id} id={item.id} name={item.name} onRename={updateItem} onRemove={removeItem} />
+              <MasterItemRow
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                mealTypes={item.mealTypes ?? []}
+                onRename={updateItem}
+                onRemove={removeItem}
+                onToggleTag={updateTags}
+              />
             ))}
           <div className="meal-item">
             <input
